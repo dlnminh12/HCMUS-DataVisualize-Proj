@@ -21,11 +21,96 @@
 </head>
 <body>
     <div class ='grid-container'>
-        <header class="header"></header>
+        <header class="header">
+            <div class = menu-icon onclick="openSidebar()">
+                <span class="material-symbols-outlined"> menu </span>
+            </div>
+            <div class = "header-left">
+                <span class="material-symbols-outlined">search</span>
+            </div>
+            <div class = "header-right">
+                <span class="material-symbols-outlined"> notifications </span>
+                <span class="material-symbols-outlined">mail </span>
+                <span class="material-symbols-outlined">account_circle </span>
+            </div>
+        </header>
 
-        <aside id = 'sidebar'></aside>
+        <aside id = "sidebar">
+            <div class = "sidebar-tittle">
+                <div class = "sidebar-brand">
+                    <span class="material-symbols-outlined"> health_and_safety </span> Heart - Disease
+                </div>
+                <span class="material-symbols-outlined" onclick = "closeSidebar()"></span>
+            </div>
+            <ul class = "sidebar-list"> 
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">dashboard </span> Dashboard
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 1
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 2
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 3
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 4
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 5
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 6
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 7
+                </li>
+                <li class = "sidebar-list-item">
+                    <span class="material-symbols-outlined">task</span> Task 8
+                </li>
+            </ul>
+        </aside>
 
-        <main class = container> </main>
+        <main class = main-container> 
+            <div class = "main-title">
+                <h2>DASHBOARD</h2>
+            </div>
+            <div class = "main-cards">
+                <div class ="card">
+                    <div class = "card-inner">
+                        <h3>Records</h3>
+                        <span class="material-symbols-outlined">groups </span> 
+                    </div>
+                    <h1>7260</h1>
+                </div>
+
+                <div class ="card">
+                    <div class = "card-inner">
+                        <h3>Smoking</h3>
+                        <span class="material-symbols-outlined">smoking_rooms</span>
+                    </div>
+                    <h1>3272</h1>
+                </div>
+
+                <div class ="card">
+                    <div class = "card-inner">
+                        <h3>Avg Record's Age</h3>
+                        <span class="material-symbols-outlined">diversity_3</span>
+                    </div>
+                    <h1>49.26</h1>
+                </div>
+
+                    <div class ="card">
+                        <div class = "card-inner">
+                            <h3>Having Heart Problems</h3>
+                            <span class="material-symbols-outlined"> heart_minus</span>
+                        </div>
+                        <h1>1475</h1>
+                </div>
+            </div>
+        </main>
 
     </div>
     <script src="script.js"></script>
