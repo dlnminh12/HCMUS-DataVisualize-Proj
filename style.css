@@ -13,7 +13,6 @@ body{
 }
 
 
-
 .grid-container{
     display: grid;
     grid-template-columns: 260px 1fr 1fr 1fr;
@@ -64,22 +63,37 @@ body{
     font-weight: 700;
 }
 
-.sidebar-list{
+.sidebar-list {
     padding: 0;
     margin-top: 15px;
     list-style-type: none;
 }
 
-.sidebar-list-item{
-    display: flex;
-   padding : 23px 20px 20px 20px;
-   font-size: 20px; 
+.sidebar-list-item {
+    font-size: 15px; 
 }
 
-.sidebar-list-item:hover{
+.sidebar-list-item a {
+    display: flex;
+    align-items: center;
+    padding: 23px 20px 20px 20px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar-list-item a:hover {
     background-color: rgba(255,255,255,0.2);
     cursor: pointer;
 }
+
+.sidebar-responsive {
+    display: inline !important;
+    position: absolute;
+    z-index: 12 !important;
+}
+
 
 .sidebar-responsive{
     display: inline !important;
