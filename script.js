@@ -18,7 +18,7 @@ function closeSidebar(){
 }
 
 // Đọc dữ liệu từ project_heart_disease.csv
-d3.csv("./data/project_heart_disease.csv").then(function(data) {
+d3.csv("../data/project_heart_disease.csv").then(function(data) {
     data.forEach(d => {
         d.Age = +d.Age;  // Chuyển đổi từ string sang number
         d["Blood Pressure"] = +d["Blood Pressure"];  // Chuyển đổi từ string sang number
