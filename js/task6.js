@@ -73,10 +73,12 @@ d3.csv("../data/project_heart_disease.csv").then(data => {
                 tooltip.style("display", "block")
                     .html(`
                         <strong>Heart Disease Status:</strong> ${key}<br/>
-                        <strong>Mean BMI:</strong> ${mean.toFixed(2)}<br/>
                         <strong>Min BMI:</strong> ${min.toFixed(2)}<br/>
+                        <strong>Q1 BMI:</strong> ${q1.toFixed(2)}<br/>
+                        <strong>Mean BMI:</strong> ${mean.toFixed(2)}<br/>
+                        <strong>Q3 BMI:</strong> ${q3.toFixed(2)}<br/>
                         <strong>Max BMI:</strong> ${max.toFixed(2)}<br/>
-                    `);
+                        `);
             })
             .on("mousemove", (event) => {
                 tooltip.style("left", (event.pageX + 10) + "px")
