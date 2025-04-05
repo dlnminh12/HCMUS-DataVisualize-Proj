@@ -83,20 +83,48 @@ d3.csv("../data/project_heart_disease.csv").then(function(data) {
         .domain(["Male", "Female"])
         .range(["#1f77b4", "#ff69b4"]);
 
-    // Step 6: Draw bars
-    chart.selectAll("g.layer")
-        .data(stackedData)
-        .join("g")
-        .attr("class", "layer")
-        .attr("fill", d => color(d.key))
-        .selectAll("rect")
-        .data(d => d)
-        .join("rect")
-        .attr("x", d => x(d.data.ageGroup))
-        .attr("y", d => y(d[1]))
-        .attr("height", d => y(d[0]) - y(d[1]))
-        .attr("width", x.bandwidth());
+// Create a tooltip
+const tooltip = d3.select("#tooltip");
 
+
+// Step 6: Draw bars with tooltip functionality
+chart.selectAll("g.layer")
+    .data(stackedData)
+    .join("g")
+    .attr("class", "layer")
+    .attr("fill", d => color(d.key))
+    .selectAll("rect")
+    .data(d => d)
+    .join("rect")
+    .attr("x", d => x(d.data.ageGroup))
+    .attr("y", d => y(d[1]))
+    .attr("height", d => y(d[0]) - y(d[1]))
+    .attr("width", x.bandwidth())
+    .on("mouseover", function (event, d) {
+        // Show tooltip
+        tooltip.style("display", "block")
+        .html(`
+            <div style="display: flex; align-items: center;">
+                <div style="width: 10px; height: 10px; background-color: ${color("Male")}; margin-right: 5px;"></div>
+                <strong>Male:</strong> ${d.data.Male}
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 10px; height: 10px; background-color: ${color("Female")}; margin-right: 5px;"></div>
+                <strong>Female:</strong> ${d.data.Female}
+            </div>
+            <strong>Total:</strong> ${d.data.Male + d.data.Female}
+        `);        d3.select(this).style("opacity", 0.8); // Highlight the bar
+    })
+    .on("mousemove", function (event) {
+        // Position tooltip near the cursor
+        tooltip.style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY - 20) + "px");
+    })
+    .on("mouseout", function () {
+        // Hide tooltip
+        tooltip.style("display", "none");
+        d3.select(this).style("opacity", 1); // Reset bar opacity
+    });
     // Step 7: Axes
     chart.append("g")
         .attr("transform", `translate(0,${chartHeight})`)
