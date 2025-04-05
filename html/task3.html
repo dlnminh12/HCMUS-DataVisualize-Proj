@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3</title>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class ='grid-container'>
+        <header class="header">
+            <div class = menu-icon onclick="openSidebar()">
+                <span class="material-symbols-outlined"> menu </span>
+            </div>
+            <div class = "header-left">
+                <span class="material-symbols-outlined">search</span>
+            </div>
+            <div class = "header-right">
+                <span class="material-symbols-outlined"> notifications </span>
+                <span class="material-symbols-outlined">mail </span>
+                <span class="material-symbols-outlined">account_circle </span>
+            </div>
+        </header>
+
+        <aside id = "sidebar">
+            <div class = "sidebar-tittle">
+                <div class = "sidebar-brand">
+                    <span class="material-symbols-outlined"> health_and_safety </span> Heart - Disease
+                </div>
+                <span class="material-symbols-outlined" onclick = "closeSidebar()"></span>
+            </div>
+            <ul class="sidebar-list"> 
+                <li class="sidebar-list-item">
+                    <a href="index.html">
+                        <span class="material-symbols-outlined">dashboard</span> Dashboard
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task1.html">
+                        <span class="material-symbols-outlined">task</span> Task 1
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task2.html">
+                        <span class="material-symbols-outlined">task</span> Task 2
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task3.html">
+                        <span class="material-symbols-outlined">task</span> Task 3
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task4.html">
+                        <span class="material-symbols-outlined">task</span> Task 4
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task5.html">
+                        <span class="material-symbols-outlined">task</span> Task 5
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task6.html">
+                        <span class="material-symbols-outlined">task</span> Task 6
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task7.html">
+                        <span class="material-symbols-outlined">task</span> Task 7
+                    </a>
+                </li>
+                <li class="sidebar-list-item">
+                    <a href="task8.html">
+                        <span class="material-symbols-outlined">task</span> Task 8
+                    </a>
+                </li>
+            </ul>
+            
+        </aside>
+
+        <main class = main-container>
+            <div class = "main-title">
+                <h2>Task 3:  Is there a relationship between smoking status and heart disease occurrence? </h2>
+            </div>
+            <svg id="grouped-bar-chart-smoking-heart-status" width="1200" height="600"></svg>
+            <div id="tooltip" style="position: absolute; background: rgba(0, 0, 0, 0.7);
+             color: white; padding: 5px; border-radius: 5px; font-size: 12px; display: none; pointer-events: none;"></div>
+        </main>
+
+    </div>
+    <script src="../js/task3.js"></script>
+</body>
+</html>

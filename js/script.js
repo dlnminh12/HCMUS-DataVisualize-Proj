@@ -17,6 +17,8 @@ function closeSidebar(){
     }
 }
 
+
+// -----------------------Chart for main screens-------------------/
 const svg = d3.select("#stacked-bar-chart-age-gender"),
     width = +svg.attr("width"),
     height = +svg.attr("height"),
@@ -38,7 +40,12 @@ d3.csv("../data/project_heart_disease.csv").then(function(data) {
         d.Age = +d.Age; //string to number
         d.ageGroup = getAgeGroup(d.Age);
         d.Gender = d.Gender.trim();
+        d["Blood Pressure"] = +d["Blood Pressure"]; //attribute name has blank space
+        d["Cholesterol Level"] = +d["Cholesterol Level"];
+        d.BMI = parseFloat(d.BMI); //string to float
+
     });
+    console.log(data[0]);
 
     // Step 2: Count occurrences by ageGroup and gender
     const grouped = d3.rollup(
@@ -126,12 +133,30 @@ chart.selectAll("g.layer")
         d3.select(this).style("opacity", 1); // Reset bar opacity
     });
     // Step 7: Axes
+
     chart.append("g")
         .attr("transform", `translate(0,${chartHeight})`)
         .call(d3.axisBottom(x));
 
     chart.append("g")
         .call(d3.axisLeft(y));
+
+    chart.append("text")
+    .attr("x", chartWidth / 2) 
+    .attr("y", chartHeight + 40 ) 
+    .attr("text-anchor", "middle") 
+    .style("font-size", "14px") 
+    .style("fill", "#ffffff") 
+    .text("Age Group"); 
+
+    chart.append("text")
+    .attr("x", -(chartHeight / 2)) 
+    .attr("y",-40)
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .style("font-size", "14px") 
+    .style("fill", "#ffffff") 
+    .text("Records"); 
 
     // Step 8: Legend
     const legend = svg.append("g")
@@ -153,3 +178,5 @@ chart.selectAll("g.layer")
             .style("fill","#ffffff");
     });
 });
+
+
