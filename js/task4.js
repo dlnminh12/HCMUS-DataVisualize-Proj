@@ -17,14 +17,12 @@ d3.csv("../data/project_heart_disease.csv").then(function(data) {
         };
     });
 
-    // SVG setup
-    const width = 800;
-    const height = 500;
+
     const margin = { top: 40, right: 100, bottom: 70, left: 60 };
 
-    const svg = d3.select("#task4-chart")
-        .attr("width", width)
-        .attr("height", height);
+    const svg = d3.select("#task4-chart"),
+        width = +svg.attr("width")
+        height = +svg.attr("height");
 
     const chart = svg.append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
