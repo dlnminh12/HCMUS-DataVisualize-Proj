@@ -1,127 +1,148 @@
-d3.csv("../data/project_heart_disease.csv").then(function(data) {
-    // Chuẩn bị dữ liệu
-    const cholesterolData = data.filter(d => d["Cholesterol Level"] && d["Heart Disease Status"]);
-    cholesterolData.forEach(d => d["Cholesterol Level"] = +d["Cholesterol Level"]);
+const svg = d3.select("#boxplot-Cholesterol-Level-heart-status");
+const margin = { top: 20, right: 30, bottom: 40, left: 50 },
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom;
 
-    const grouped = d3.group(cholesterolData, d => d["Heart Disease Status"]);
-    const boxData = Array.from(grouped, ([key, values]) => {
-        const sorted = values.map(d => d["Cholesterol Level"]).sort(d3.ascending);
-        return {
-            key,
-            q1: d3.quantile(sorted, 0.25),
-            mean: d3.mean(sorted),
-            q3: d3.quantile(sorted, 0.75),
-            min: d3.min(sorted),
-            max: d3.max(sorted)
-        };
-    });
+const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Thiết lập kích thước và margin
-    const svg = d3.select("#task5-chart");
-    const margin = { top: 40, right: 100, bottom: 70, left: 60 };
-    const width = +svg.attr("width") - margin.left - margin.right;
-    const height = +svg.attr("height") - margin.top - margin.bottom;
+// Create a tooltip
+const tooltip = d3.select("body")
+    .append("div")
+    .attr("id", "tooltip")
+    .style("position", "absolute")
+    .style("background", "rgba(0, 0, 0, 0.7)")
+    .style("color", "white")
+    .style("padding", "5px")
+    .style("border-radius", "5px")
+    .style("font-size", "12px")
+    .style("display", "none")
+    .style("pointer-events", "none");
 
-    const chart = svg.append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+d3.csv("../data/project_heart_disease.csv").then(data => {
+    data.forEach(d => d["Cholesterol Level"] = +d["Cholesterol Level"]);
 
-    // Tạo scale
+    const groups = d3.groups(data, d => d["Heart Disease Status"]);
+
     const x = d3.scaleBand()
-        .domain(boxData.map(d => d.key))
+        .domain(groups.map(d => d[0]))
         .range([0, width])
-        .padding(0.5);
+        .padding(0.4);
 
     const y = d3.scaleLinear()
-        .domain([140, d3.max(boxData, d => d.max)])
-        .nice()
-        .range([height, 0]);
+        .domain([0, d3.max(data, d => d["Cholesterol Level"])])
+        .range([height, 0])
+        .nice();
 
-    // Vẽ trục
-    chart.append("g")
+    // Define color scale for the boxes
+    const color = d3.scaleOrdinal()
+        .domain(["Yes", "No"])
+        .range(["#ff7f0e", "#1f77b4"]); // Orange for "Yes", Blue for "No"
+
+    g.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
+        .selectAll("text") 
+        .style("font-size", "14px") 
+        .style("fill", "#ffffff"); 
 
-    chart.append("g")
+    g.append("g")
         .call(d3.axisLeft(y));
 
-    // Tooltip
-    const tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("background", "#333")
-        .style("color", "#fff")
-        .style("padding", "8px")
-        .style("border-radius", "4px")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
+    // Calculate boxplot data
+    groups.forEach(([key, values]) => {
+        values.sort((a, b) => a["Cholesterol Level"] - b["Cholesterol Level"]);
+        const q1 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.25);
+        const median = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.5);
+        const q3 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.75);
+        const min = d3.min(values, d => d["Cholesterol Level"]);
+        const max = d3.max(values, d => d["Cholesterol Level"]);
+        const mean = d3.mean(values, d => d["Cholesterol Level"]);
 
-    // Vẽ box
-    const boxWidth = 60;
-    chart.selectAll("box")
-        .data(boxData)
-        .enter()
-        .append("rect")
-        .attr("x", d => x(d.key) + (x.bandwidth() - boxWidth) / 2)
-        .attr("y", d => y(d.q3))
-        .attr("height", d => y(d.q1) - y(d.q3))
-        .attr("width", boxWidth)
-        .attr("stroke", "#fff")
-        .attr("fill", "#00acc1")
-        .on("mouseover", function(event, d) {
-            tooltip.transition().duration(200).style("opacity", 0.9);
-            tooltip.html(
-                `<strong>${d.key}</strong><br/>
-                 Min: ${d.min}<br/>
-                 Q1: ${d.q1}<br/>
-                 Mean: ${d.mean.toFixed(2)}<br/>
-                 Q3: ${d.q3}<br/>
-                 Max: ${d.max}`
-            )
-            .style("left", (event.pageX + 15) + "px")
-            .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", () => tooltip.transition().duration(500).style("opacity", 0));
+        const boxWidth = 60; // Increase box width
+        const center = x(key) + x.bandwidth() / 2;
 
-    // Vẽ đường mean
-    chart.selectAll("meanLine")
-        .data(boxData)
-        .enter()
-        .append("line")
-        .attr("x1", d => x(d.key) + (x.bandwidth() - boxWidth) / 2)
-        .attr("x2", d => x(d.key) + (x.bandwidth() - boxWidth) / 2 + boxWidth)
-        .attr("y1", d => y(d.mean))
-        .attr("y2", d => y(d.mean))
-        .attr("stroke", "white")
-        .style("stroke-width", 2);
+        // Draw box
+        g.append("rect")
+            .attr("x", center - boxWidth / 2)
+            .attr("y", y(q3))
+            .attr("height", y(q1) - y(q3))
+            .attr("width", boxWidth)
+            .attr("stroke", "black")
+            .attr("fill", color(key)) // Use color scale for different boxes
+            .on("mouseover", () => {
+                tooltip.style("display", "block")
+                    .html(`
+                        <strong>Heart Disease Status:</strong> ${key}<br/>
+                        <strong>Min Cholesterol Level:</strong> ${min.toFixed(2)}<br/>
+                        <strong>Q1 Cholesterol Level:</strong> ${q1.toFixed(2)}<br/>
+                        <strong>Mean Cholesterol Level:</strong> ${mean.toFixed(2)}<br/>
+                        <strong>Q3 Cholesterol Level:</strong> ${q3.toFixed(2)}<br/>
+                        <strong>Max Cholesterol Level:</strong> ${max.toFixed(2)}<br/>
+                        `);
+            })
+            .on("mousemove", (event) => {
+                tooltip.style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 30) + "px");
+            })
+            .on("mouseout", () => tooltip.style("display", "none"));
 
-    // Vẽ đường min-max
-    chart.selectAll("whisker")
-        .data(boxData)
-        .enter()
-        .append("line")
-        .attr("x1", d => x(d.key) + x.bandwidth() / 2)
-        .attr("x2", d => x(d.key) + x.bandwidth() / 2)
-        .attr("y1", d => y(d.min))
-        .attr("y2", d => y(d.max))
-        .attr("stroke", "white")
-        .style("stroke-width", 2);
-
-    // Tên trục X
-    chart.append("text")
+            // Add X-Y-axis label
+        g.append("text")
+        .attr("x", width / 2) 
+        .attr("y", height + 30)
         .attr("text-anchor", "middle")
-        .attr("x", width / 2)
-        .attr("y", height + 50)
-        .attr("fill", "white")
-        .style("font-size", "14px")
-        .text("Heart Disease Status");
+        .style("font-size", "14px") 
+        .style("fill", "#ffffff") 
+        .text("Smoking Status"); 
 
-    // Tên trục Y
-    chart.append("text")
+        g.append("text")
+        .attr("x",-(height / 2) ) 
+        .attr("y",-40)
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
-        .attr("x", -height / 2)
-        .attr("y", -40)
-        .attr("fill", "white")
-        .style("font-size", "14px")
-        .text("Cholesterol Level (mg/dL)");
+        .style("font-size", "14px") 
+        .style("fill", "#ffffff") 
+        .text("Cholesterol Level"); 
+
+        // Median line
+        g.append("line")
+            .attr("x1", center - boxWidth / 2)
+            .attr("x2", center + boxWidth / 2)
+            .attr("y1", y(median))
+            .attr("y2", y(median))
+            .attr("stroke", "white");
+
+        // Whiskers
+        g.append("line").attr("x1", center).attr("x2", center).attr("y1", y(min)).attr("y2", y(q1)).attr("stroke", "white");
+        g.append("line").attr("x1", center).attr("x2", center).attr("y1", y(q3)).attr("y2", y(max)).attr("stroke", "white");
+
+        // Horizontal lines (whisker ends)
+        g.append("line").attr("x1", center - boxWidth / 4).attr("x2", center + boxWidth / 4).attr("y1", y(min)).attr("y2", y(min)).attr("stroke", "white");
+        g.append("line").attr("x1", center - boxWidth / 4).attr("x2", center + boxWidth / 4).attr("y1", y(max)).attr("y2", y(max)).attr("stroke", "white");
+    });
+    // Add legend
+    const legend = svg.append("g")
+    .attr("transform", `translate(${width - 150}, 20)`); // Vị trí của legend
+
+    const legendData = [
+    { label: "Heart Disease: Yes", color: "#ff7f0e" },
+    { label: "Heart Disease: No", color: "#1f77b4" }
+    ];
+
+    legendData.forEach((d, i) => {
+    const legendRow = legend.append("g")
+        .attr("transform", `translate(0, ${i * 20})`);
+
+    legendRow.append("rect")
+        .attr("width", 18)
+        .attr("height", 18)
+        .attr("fill", d.color);
+
+    legendRow.append("text")
+        .attr("x", 25)
+        .attr("y", 15)
+        .text(d.label)
+        .style("fill", "#ffffff")
+        .style("font-size", "15px");
+    });
 });
