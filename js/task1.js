@@ -70,7 +70,7 @@ d3.csv("../data/project_heart_disease.csv").then(function (data) {
 
     const tooltip = d3.select("#tooltip");
 
-    // Step 1: Vẽ trục Y ban đầu tại đáy (ẩn)
+    // Step 1: Vẽ Y ban đầu tại đáy (ẩn)
     const yAxisScaleStart = d3.scaleLinear()
         .domain([0, 0])
         .range([chartHeight4, chartHeight4]);
@@ -78,12 +78,12 @@ d3.csv("../data/project_heart_disease.csv").then(function (data) {
     const yAxis = chart4.append("g")
         .call(d3.axisLeft(yAxisScaleStart).ticks(5));
 
-    // Step 2: Vẽ trục X ban đầu với range 0 (ẩn)
+    // Step 2: Vẽ X ban đầu với range 0 (ẩn)
     const xAxis = chart4.append("g")
         .attr("transform", `translate(0,${chartHeight4})`)
         .call(d3.axisBottom(d3.scaleBand().domain(ageGroupOrder).range([0, 0])));
 
-    // Step 3: Animate trục XY
+    // Step 3: Animate XY
     setTimeout(() => {
         yAxis.transition()
             .duration(1000)
