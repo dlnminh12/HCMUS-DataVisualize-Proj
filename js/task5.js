@@ -5,7 +5,7 @@ const margin = { top: 20, right: 30, bottom: 40, left: 50 },
 
 const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-// Create a tooltip
+
 const tooltip = d3.select("body")
     .append("div")
     .attr("id", "tooltip")
@@ -33,116 +33,161 @@ d3.csv("../data/project_heart_disease.csv").then(data => {
         .range([height, 0])
         .nice();
 
-    // Define color scale for the boxes
+
     const color = d3.scaleOrdinal()
         .domain(["Yes", "No"])
-        .range(["#ff7f0e", "#1f77b4"]); // Orange for "Yes", Blue for "No"
+        .range(["#ff7f0e", "#1f77b4"]); 
 
-    g.append("g")
+    // Hidden axes
+    const yAxisScaleStart = d3.scaleLinear()
+        .domain([0, 0])
+        .range([height, height]);
+
+    const yAxis = g.append("g")
+        .call(d3.axisLeft(yAxisScaleStart).ticks(5));
+
+    const xAxis = g.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .selectAll("text") 
-        .style("font-size", "14px") 
-        .style("fill", "#ffffff"); 
+        .call(d3.axisBottom(d3.scaleBand().domain(groups.map(d => d[0])).range([0, 0])));
 
-    g.append("g")
-        .call(d3.axisLeft(y));
+    // Animate axes
+    setTimeout(() => {
+        yAxis.transition()
+            .duration(1000)
+            .ease(d3.easeCubicOut)
+            .call(d3.axisLeft(y));
 
-    // Calculate boxplot data
-    groups.forEach(([key, values]) => {
-        values.sort((a, b) => a["Cholesterol Level"] - b["Cholesterol Level"]);
-        const q1 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.25);
-        const median = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.5);
-        const q3 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.75);
-        const min = d3.min(values, d => d["Cholesterol Level"]);
-        const max = d3.max(values, d => d["Cholesterol Level"]);
-        const mean = d3.mean(values, d => d["Cholesterol Level"]);
+        xAxis.transition()
+            .duration(1000)
+            .ease(d3.easeCubicOut)
+            .call(d3.axisBottom(x));
+    }, 100);
 
-        const boxWidth = 60; // Increase box width
-        const center = x(key) + x.bandwidth() / 2;
+    // Animate boxplot elements
+    setTimeout(() => {
+        groups.forEach(([key, values]) => {
+            values.sort((a, b) => a["Cholesterol Level"] - b["Cholesterol Level"]);
+            const q1 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.25);
+            const median = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.5);
+            const q3 = d3.quantile(values.map(d => d["Cholesterol Level"]), 0.75);
+            const min = d3.min(values, d => d["Cholesterol Level"]);
+            const max = d3.max(values, d => d["Cholesterol Level"]);
 
-        // Draw box
-        g.append("rect")
-            .attr("x", center - boxWidth / 2)
-            .attr("y", y(q3))
-            .attr("height", y(q1) - y(q3))
-            .attr("width", boxWidth)
-            .attr("stroke", "black")
-            .attr("fill", color(key)) // Use color scale for different boxes
-            .on("mouseover", () => {
-                tooltip.style("display", "block")
-                    .html(`
-                        <strong>Heart Disease Status:</strong> ${key}<br/>
-                        <strong>Min Cholesterol Level:</strong> ${min.toFixed(2)}<br/>
-                        <strong>Q1 Cholesterol Level:</strong> ${q1.toFixed(2)}<br/>
-                        <strong>Mean Cholesterol Level:</strong> ${mean.toFixed(2)}<br/>
-                        <strong>Q3 Cholesterol Level:</strong> ${q3.toFixed(2)}<br/>
-                        <strong>Max Cholesterol Level:</strong> ${max.toFixed(2)}<br/>
+            const boxWidth = 60;
+            const center = x(key) + x.bandwidth() / 2;
+
+            // Box
+            g.append("rect")
+                .attr("x", center - boxWidth / 2)
+                .attr("y", y(0)) 
+                .attr("height", 0) 
+                .attr("width", boxWidth)
+                .attr("stroke", "black")
+                .attr("fill", color(key))
+                .on("mouseover", () => {
+                    tooltip.style("display", "block")
+                        .html(`
+                            <strong>Heart Disease Status:</strong> ${key}<br/>
+                            <strong>Min Cholesterol Level:</strong> ${min.toFixed(2)}<br/>
+                            <strong>Q1 Cholesterol Level:</strong> ${q1.toFixed(2)}<br/>
+                            <strong>Median Cholesterol Level:</strong> ${median.toFixed(2)}<br/>
+                            <strong>Q3 Cholesterol Level:</strong> ${q3.toFixed(2)}<br/>
+                            <strong>Max Cholesterol Level:</strong> ${max.toFixed(2)}<br/>
                         `);
-            })
-            .on("mousemove", (event) => {
-                tooltip.style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 30) + "px");
-            })
-            .on("mouseout", () => tooltip.style("display", "none"));
+                })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 30) + "px");
+                })
+                .on("mouseout", () => tooltip.style("display", "none"))
+                .transition()
+                .duration(1000)
+                .attr("y", y(q3)) // Animate to Q3 position
+                .attr("height", y(q1) - y(q3)); // Animate to correct height
 
-            // Add X-Y-axis label
-        g.append("text")
-        .attr("x", width / 2) 
-        .attr("y", height + 30)
-        .attr("text-anchor", "middle")
-        .style("font-size", "14px") 
-        .style("fill", "#ffffff") 
-        .text("Smoking Status"); 
+            // Median line
+            g.append("line")
+                .attr("x1", center - boxWidth / 2)
+                .attr("x2", center + boxWidth / 2)
+                .attr("y1", y(0)) 
+                .attr("y2", y(0)) 
+                .attr("stroke", "white")
+                .transition()
+                .duration(1000)
+                .attr("y1", y(median))
+                .attr("y2", y(median));
 
-        g.append("text")
-        .attr("x",-(height / 2) ) 
-        .attr("y",-40)
-        .attr("text-anchor", "middle")
-        .attr("transform", "rotate(-90)")
-        .style("font-size", "14px") 
-        .style("fill", "#ffffff") 
-        .text("Cholesterol Level"); 
+            // Whiskers
+            g.append("line")
+                .attr("x1", center)
+                .attr("x2", center)
+                .attr("y1", y(0)) 
+                .attr("y2", y(0)) 
+                .attr("stroke", "white")
+                .transition()
+                .duration(1000)
+                .attr("y1", y(min))
+                .attr("y2", y(q1));
 
-        // Median line
-        g.append("line")
-            .attr("x1", center - boxWidth / 2)
-            .attr("x2", center + boxWidth / 2)
-            .attr("y1", y(median))
-            .attr("y2", y(median))
-            .attr("stroke", "white");
+            g.append("line")
+                .attr("x1", center)
+                .attr("x2", center)
+                .attr("y1", y(0)) 
+                .attr("y2", y(0)) 
+                .attr("stroke", "white")
+                .transition()
+                .duration(1000)
+                .attr("y1", y(q3))
+                .attr("y2", y(max));
 
-        // Whiskers
-        g.append("line").attr("x1", center).attr("x2", center).attr("y1", y(min)).attr("y2", y(q1)).attr("stroke", "white");
-        g.append("line").attr("x1", center).attr("x2", center).attr("y1", y(q3)).attr("y2", y(max)).attr("stroke", "white");
+            // Horizontal lines
+            g.append("line")
+                .attr("x1", center - boxWidth / 4)
+                .attr("x2", center + boxWidth / 4)
+                .attr("y1", y(0)) 
+                .attr("y2", y(0)) 
+                .attr("stroke", "white")
+                .transition()
+                .duration(1000)
+                .attr("y1", y(min))
+                .attr("y2", y(min));
 
-        // Horizontal lines (whisker ends)
-        g.append("line").attr("x1", center - boxWidth / 4).attr("x2", center + boxWidth / 4).attr("y1", y(min)).attr("y2", y(min)).attr("stroke", "white");
-        g.append("line").attr("x1", center - boxWidth / 4).attr("x2", center + boxWidth / 4).attr("y1", y(max)).attr("y2", y(max)).attr("stroke", "white");
-    });
-    // Add legend
+            g.append("line")
+                .attr("x1", center - boxWidth / 4)
+                .attr("x2", center + boxWidth / 4)
+                .attr("y1", y(0)) 
+                .attr("y2", y(0)) 
+                .attr("stroke", "white")
+                .transition()
+                .duration(1000)
+                .attr("y1", y(max))
+                .attr("y2", y(max));
+        });
+    }, 1000);
+
+    // Legend
     const legend = svg.append("g")
-    .attr("transform", `translate(${width - 150}, 20)`); // Vị trí của legend
+        .attr("transform", `translate(${width - 150}, 20)`);
 
     const legendData = [
-    { label: "Heart Disease: Yes", color: "#ff7f0e" },
-    { label: "Heart Disease: No", color: "#1f77b4" }
+        { label: "Heart Disease: Yes", color: "#ff7f0e" },
+        { label: "Heart Disease: No", color: "#1f77b4" }
     ];
 
     legendData.forEach((d, i) => {
-    const legendRow = legend.append("g")
-        .attr("transform", `translate(0, ${i * 20})`);
+        const legendRow = legend.append("g")
+            .attr("transform", `translate(0, ${i * 20})`);
 
-    legendRow.append("rect")
-        .attr("width", 18)
-        .attr("height", 18)
-        .attr("fill", d.color);
+        legendRow.append("rect")
+            .attr("width", 18)
+            .attr("height", 18)
+            .attr("fill", d.color);
 
-    legendRow.append("text")
-        .attr("x", 25)
-        .attr("y", 15)
-        .text(d.label)
-        .style("fill", "#ffffff")
-        .style("font-size", "15px");
+        legendRow.append("text")
+            .attr("x", 25)
+            .attr("y", 15)
+            .text(d.label)
+            .style("fill", "#ffffff")
+            .style("font-size", "15px");
     });
 });
