@@ -165,6 +165,24 @@ const tooltip = d3.select("body")
                     .attr("y2", y(max));
             });
         }, 1000);
+
+        g.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 35)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("fill", "#ffffff")
+        .text("Heart Disease Status");
+
+        g.append("text")
+        .attr("x", -height / 2)
+        .attr("y", -30)
+        .attr("transform", "rotate(-90)")
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("fill", "#ffffff")
+        .text("BMI");
+
     
         // Add legend
         const legend = svg.append("g")
